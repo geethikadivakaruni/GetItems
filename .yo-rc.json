@@ -1,0 +1,16 @@
+{
+  "@microsoft/generator-sharepoint": {
+    "plusBeta": false,
+    "isCreatingSolution": true,
+    "version": "1.15.2",
+    "libraryName": "get-list-items",
+    "libraryId": "76cadedb-8c59-45d3-a9a0-377e6e80b972",
+    "environment": "spo",
+    "packageManager": "npm",
+    "solutionName": "GetListItems",
+    "solutionShortDescription": "GetListItems description",
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "componentType": "webpart"
+  }
+}
