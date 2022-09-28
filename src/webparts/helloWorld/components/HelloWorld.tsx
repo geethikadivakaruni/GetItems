@@ -3,6 +3,29 @@ import styles from './HelloWorld.module.scss';
 import { IHelloWorldProps } from './IHelloWorldProps';
 import { escape } from '@microsoft/sp-lodash-subset';
 
+export interface ISPList {
+  Description: string;
+  Priority: string;
+  Status: string;
+  Assignedto:{
+    Title:string
+  }; 
+DateReported:string;
+IssueSource:string;
+Images:any;
+Issueloggedby:{
+  Title:string
+};
+
+}
+
+export interface IDetailsListState {
+  Items: ISPList[];
+  columns: any;
+  isColumnReorderEnabled: boolean;
+}
+
+
 export default class HelloWorld extends React.Component<IHelloWorldProps, {}> {
   public render(): React.ReactElement<IHelloWorldProps> {
     const {
