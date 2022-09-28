@@ -9,10 +9,19 @@
           "manifest": "./src/webparts/helloWorld/HelloWorldWebPart.manifest.json"
         }
       ]
+    },
+    "issue-tracker-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/issueTracker/IssueTrackerWebPart.js",
+          "manifest": "./src/webparts/issueTracker/IssueTrackerWebPart.manifest.json"
+        }
+      ]
     }
   },
   "externals": {},
   "localizedResources": {
-    "HelloWorldWebPartStrings": "lib/webparts/helloWorld/loc/{locale}.js"
+    "HelloWorldWebPartStrings": "lib/webparts/helloWorld/loc/{locale}.js",
+    "IssueTrackerWebPartStrings": "lib/webparts/issueTracker/loc/{locale}.js"
   }
 }

@@ -1,14 +1,14 @@
 {
   "@microsoft/generator-sharepoint": {
     "plusBeta": false,
-    "isCreatingSolution": false,
+    "isCreatingSolution": true,
     "version": "1.15.2",
-    "libraryName": "get-list-items",
-    "libraryId": "76cadedb-8c59-45d3-a9a0-377e6e80b972",
+    "libraryName": "issue-tracker",
+    "libraryId": "c50b70a8-0a4c-4042-9ead-75e3d766c52e",
     "environment": "spo",
     "packageManager": "npm",
-    "solutionName": "GetListItems",
-    "solutionShortDescription": "GetListItems description",
+    "solutionName": "issue-tracker",
+    "solutionShortDescription": "issue-tracker description",
     "skipFeatureDeployment": true,
     "isDomainIsolated": false,
     "componentType": "webpart"

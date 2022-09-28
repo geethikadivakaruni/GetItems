@@ -1,0 +1,18 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "issur-tracker-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/issurTracker/IssurTrackerWebPart.js",
+          "manifest": "./src/webparts/issurTracker/IssurTrackerWebPart.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "IssurTrackerWebPartStrings": "lib/webparts/issurTracker/loc/{locale}.js"
+  }
+}

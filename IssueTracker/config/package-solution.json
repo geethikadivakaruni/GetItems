@@ -1,0 +1,40 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "issue-tracker-client-side-solution",
+    "id": "c50b70a8-0a4c-4042-9ead-75e3d766c52e",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "developer": {
+      "name": "",
+      "websiteUrl": "",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": "Undefined-1.15.2"
+    },
+    "metadata": {
+      "shortDescription": {
+        "default": "issue-tracker description"
+      },
+      "longDescription": {
+        "default": "issue-tracker description"
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
+    "features": [
+      {
+        "title": "issue-tracker Feature",
+        "description": "The feature that activates elements of the issue-tracker solution.",
+        "id": "99a6e060-932a-46bb-b120-c5d1a85550d5",
+        "version": "1.0.0.0"
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/issue-tracker.sppkg"
+  }
+}
