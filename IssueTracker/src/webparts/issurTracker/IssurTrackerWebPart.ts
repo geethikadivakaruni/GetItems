@@ -7,39 +7,47 @@ import {
 } from '@microsoft/sp-property-pane';
 import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
 import { IReadonlyTheme } from '@microsoft/sp-component-base';
-
+import { sp } from "@pnp/sp/presets/all"; 
 import * as strings from 'IssurTrackerWebPartStrings';
 import IssurTracker from './components/IssurTracker';
 import { IIssurTrackerProps } from './components/IIssurTrackerProps';
-
+// import {   } from "@pnp/sp";
 export interface IIssurTrackerWebPartProps {
   description: string;
+   webURL:string;
+  
 }
+
+
 
 export default class IssurTrackerWebPart extends BaseClientSideWebPart<IIssurTrackerWebPartProps> {
 
   private _isDarkTheme: boolean = false;
   private _environmentMessage: string = '';
 
+
+
   public render(): void {
     const element: React.ReactElement<IIssurTrackerProps> = React.createElement(
       IssurTracker,
       {
         description: this.properties.description,
-        isDarkTheme: this._isDarkTheme,
-        environmentMessage: this._environmentMessage,
-        hasTeamsContext: !!this.context.sdks.microsoftTeams,
-        userDisplayName: this.context.pageContext.user.displayName
+        spcontext:this.context // webURL:this.context.pageContext.web.absoluteUrl,
+
       }
     );
 
     ReactDom.render(element, this.domElement);
   }
 
-  protected onInit(): Promise<void> {
+  protected async onInit(): Promise<void> {
     this._environmentMessage = this._getEnvironmentMessage();
 
     return super.onInit();
+    
+ 
+  // await super.onInit();
+  //   const sp = spfi().using(SPFx(this.context));
   }
 
   private _getEnvironmentMessage(): string {
