@@ -10,14 +10,27 @@ import "@pnp/sp/lists";
 import "@pnp/sp/items";
 import { DefaultButton, PrimaryButton, CommandBarButton,
  } from '@fluentui/react/lib/Button';
+ import { PeoplePicker, PrincipalType } from "@pnp/spfx-controls-react/lib/PeoplePicker";
+ import { IPersonaProps } from '@fluentui/react/lib/Persona';
+ import {
+  DatePicker,
+  DayOfWeek,
+
+  IDropdownOption,
+  
+  defaultDatePickerStrings,
+} from '@fluentui/react';
+ import { Dropdown, IDropdownStyles } from '@fluentui/react/lib/Dropdown';
 import { Stack, IStackProps, IStackStyles } from '@fluentui/react/lib/Stack';
-import { Items, ItemVersion, Web } from "@pnp/sp/presets/all";
+import { Item, Items, ItemVersion, Web } from "@pnp/sp/presets/all";
 import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
 import {IColumn,DetailsList, SelectionMode,Selection, DetailsListLayoutMode, mergeStyles, Link,Image,ImageFit} from '@fluentui/react';
 import * as moment from 'moment';
 import { PnPClientStorage, PnPClientStorageWrapper } from '@pnp/common';
 import { MarqueeSelection } from '@fluentui/react';
-import {Form} from './Form'
+import { Label } from '@fluentui/react/lib/Label';
+import { TextField } from '@fluentui/react/lib/TextField';
+// import Form from './Form'
 export interface ISPList {
   Description: string;
   Priority: string;
@@ -37,18 +50,35 @@ Amount:number;
 ID:number
 }
 
-
+const dropdownStyles: Partial<IDropdownStyles> = { dropdown: { width: 300 }, root: { height: 100 } };
 export interface IDetailsListState {
   Items: ISPList[];
   columns: any;
   isColumnReorderEnabled: boolean;
   disabled:boolean;
   selectionDetails: string;
- isFormEnabled:boolean;
+ showForm:boolean;
+ selectionMode?: SelectionMode;
+ IsEditEnabled?:boolean
+ DisplaySelectedItem?:boolean;
 //  selectionMode:boolean,
 }
-
-
+const StatusOptions = [
+  { key: 'A', text: 'Blocked' },
+  { key: 'B', text: 'In progress' },
+  { key: 'C', text: 'Completed' },
+  { key: 'D', text: 'Duplicate' },
+  { key: 'E', text: 'By design' },
+  { key: 'D', text: "Won't fix" },
+  { key: 'E', text: 'New' },
+];
+const PriorityOptions = [
+  { key: 'A', text: 'High' },
+  { key: 'B', text: 'Critical' },
+  { key: 'C', text: 'Normal' },
+  { key: 'D', text: 'Low' },
+  { key: 'E', text: 'Option e' },
+];
 export default class IssurTracker extends React.Component<IIssurTrackerProps ,IDetailsListState> {
   private _selection: Selection;
   constructor(props:any) {
@@ -151,7 +181,10 @@ export default class IssurTracker extends React.Component<IIssurTrackerProps ,ID
       isColumnReorderEnabled: true,
       disabled:false,
       selectionDetails: this._getSelectionDetails(),
- isFormEnabled:false,
+ showForm:false,
+ selectionMode: SelectionMode.single,
+ IsEditEnabled:false,
+ DisplaySelectedItem:false
 //  selectionMode:false
     };
     // sp.setup({
@@ -165,6 +198,10 @@ export default class IssurTracker extends React.Component<IIssurTrackerProps ,ID
     console.log("selectedId",selectedId)
     
    }
+
+   private _getPeoplePickerItems(items: any[]) {
+    console.log('Items:', items);
+    }
   private web = Web("https://sites.ey.com/sites/testcanda/");
   private async getData() {
     // let web = Web(this.props.webURL);
@@ -194,9 +231,7 @@ export default class IssurTracker extends React.Component<IIssurTrackerProps ,ID
   public async componentDidMount() {
      await this.getData();
   }
-  private _onItemInvoked = (item: ISPList): void => {
-    // alert(`Item invoked: ${item.}`);
-  };
+  
   public _onRenderItemColumn = (item: ISPList, index: number, column: IColumn): JSX.Element | any => {
     const src = item.Images;
   console.log(column.key);
@@ -242,18 +277,79 @@ export default class IssurTracker extends React.Component<IIssurTrackerProps ,ID
       return ""
      }
     }
-  
+   public showForm = () => {
+      return (
+       
+        <div> 
+           {alert(this.state.showForm)}
+       <form id= "add-app">
+   
+            <Label>Description</Label>
+            {/* <input type="text"> </input> */}
+            <TextField></TextField>
+   
+            <Label>Title </Label>
+            <TextField></TextField>
+   
+            <Label>Priority </Label>
+            <Dropdown
+             placeholder="Select an option"
+             label="Dropdown with error message"
+             options={PriorityOptions}
+            //  errorMessage={showError ? 'This dropdown has an error' : undefined}
+             styles={dropdownStyles} />
+
+<Label>Status </Label>
+            <Dropdown
+             placeholder="Select an option"
+             label="Dropdown with error message"
+             options={StatusOptions}
+            //  errorMessage={showError ? 'This dropdown has an error' : undefined}
+             styles={dropdownStyles} />
+
+             <Label>Assigned To</Label>
+             {/* <PeoplePicker/> */}
+             <Label>Date Reported</Label>
+             <DatePicker
+        // firstDayOfWeek={firstDayOfWeek}
+        placeholder="Select a date..."
+        ariaLabel="Select a date"
+        // DatePicker uses English strings by default. For localized apps, you must override this prop.
+        strings={defaultDatePickerStrings}
+      />
+      <Label>Issue Source</Label>
+      {/* //link */}
+      <Label>IssueLoggedBy</Label>
+      {/* PeoplePicker */}
+<Label>Images</Label>
+<Image
+      // {...imageProps}
+      alt="Example with no image fit value and height or width is specified."
+      width={100}
+      height={100}
+    />
+<Label>Amount</Label>
+<TextField></TextField>
+   
+  <DefaultButton onClick={()=>this.setState({showForm:false})}> Cancel</DefaultButton>
+  <PrimaryButton onClick={this.createItem}>Create Item</PrimaryButton>
+         </form>
+         </div>
+        );
+    }
  
   public render(): React.ReactElement<IIssurTrackerProps> {
-  
+  const{selectionMode}=this.state
     return (
 
  <div><h1>Display SharePoint list data using spfx</h1>
-     <PrimaryButton text="New Item" onClick={this.getForm}/>
-      <DefaultButton text="Display" onClick={this.getFormToDisplay} />
-      <PrimaryButton text="Edit" onClick={this.getFormToEdit}  />
-      
+ 
+   <PrimaryButton text="New Item" onClick={()=>this.setState({showForm:true})}/> 
+   <DefaultButton text="Display" onClick={this.getFormToDisplay } />
+    <PrimaryButton text="Edit" onClick={this.getFormToEdit}  />
   
+  {this.state.showForm?this.showForm():""}
+     
       <MarqueeSelection selection={this._selection}>
         {console.log("this.state.Items",this.state.Items)}
          <DetailsList
@@ -263,35 +359,144 @@ export default class IssurTracker extends React.Component<IIssurTrackerProps ,ID
           layoutMode={DetailsListLayoutMode.justified}
           isHeaderVisible={true}
           onRenderItemColumn={this._onRenderItemColumn}
-          selectionMode={SelectionMode.single}
+          selectionMode={selectionMode}
           selectionZoneProps={{
             selection: this._selection,
             disableAutoSelectOnInputElements: true,
-            // selectionMode: selectionMode,
+             selectionMode: selectionMode,
           }}
         /> 
        </MarqueeSelection>
-        <h3>Note : Image is clickable.</h3></div>
-  
-      
-   
+        <h3>Note : Image is clickable.</h3>
+     
+     
+        
+        
+  </div> 
     );
-  }
-  getFormToDisplay(){
-    return console.log("Hello World")
-  }
-  getFormToEdit(){
-    return console.log("Hello World")
-  }
-
-  getForm(){
-  this.setState({
-    isFormEnabled:true
-   });
- 
     
   }
+  
+  getFormToDisplay(){
+    return (
+       
+      <div> 
+         {alert(this.state.showForm)}
+     <form id= "add-app">
  
+          <Label>Description</Label>
+          {/* <input type="text"> </input> */}
+         {/* {item.Description} */}
+ 
+        <Label>Priority </Label>
+          {/* {item.Priority} */}
 
+        <Label>Status </Label>
+         {/* {item.Status} */}
+
+           <Label>Assigned To</Label>
+          {/* {item.Assignedto.Title} */}
+           <Label>Date Reported</Label>
+           {/* {item.DateReported} */}
+   
+    <Label>Issue Source</Label>
+{/* {item.IssueSource} */}
+    <Label>IssueLoggedBy</Label>
+  {/* {item.Issueloggedby} */}
+<Label>Images</Label>
+{/* {item.Images} */}
+<Label>Amount</Label>
+{/* {item.Amount} */}
+{/* <DefaultButton onClick={()=>this.setState({DisplaySelectedItem:false})}> Cancel</DefaultButton> */}
+
+</form>
+</div>
+    )
+ 
+  }
+  getFormToEdit(){
+    return (
+      this.state.Items.map(item =>{
+      <div> 
+         {alert(this.state.showForm)}
+     <form id= "add-app">
+ 
+          <Label>Description</Label>
+          {/* <input type="text"> </input> */}
+          <TextField value={item.Description} ></TextField>
+ 
+         
+ 
+          <Label>Priority </Label>
+          <Dropdown
+           placeholder="Select an option"
+           label="Dropdown with error message"
+           options={PriorityOptions}
+          //  value={this.state.}
+          //  onChange={this.onChange}
+          //  errorMessage={showError ? 'This dropdown has an error' : undefined}
+           styles={dropdownStyles} />
+
+<Label>Status </Label>
+          <Dropdown
+           placeholder="Select an option"
+           label="Dropdown with error message"
+           options={StatusOptions}
+          //  errorMessage={showError ? 'This dropdown has an error' : undefined}
+           styles={dropdownStyles} />
+
+           <Label>Assigned To</Label>
+           <PeoplePicker
+ context={this.props.context}
+ titleText="People Picker"
+ personSelectionLimit={3}
+ groupName={"Team Site Owners"} // Leave this blank in case you want to filter from all users
+ showtooltip={true}
+//  isRequired={true}
+ disabled={false}
+//  selectedItems={this._getPeoplePickerItems} 
+/>
+           <Label>Date Reported</Label>
+           <DatePicker
+      // firstDayOfWeek={firstDayOfWeek}
+      placeholder="Select a date..."
+      ariaLabel="Select a date"
+      // DatePicker uses English strings by default. For localized apps, you must override this prop.
+      strings={defaultDatePickerStrings}
+    />
+    <Label>Issue Source</Label>
+    {/* //link */}
+    <Label>IssueLoggedBy</Label>
+    {/* PeoplePicker */}
+<Label>Images</Label>
+<Image
+    // {...imageProps}
+    alt="Example with no image fit value and height or width is specified."
+    width={100}
+    height={100}
+  />
+<Label>Amount</Label>
+<TextField></TextField>
+ 
+<DefaultButton onClick={()=>this.setState({IsEditEnabled:false})}> Cancel</DefaultButton>
+<PrimaryButton onClick={this.updateItem}>Create Item</PrimaryButton>
+</form>
+</div>
+   } )
+    )
+  }
+
+  public createItem(){
+    return console.log("Added Items")
+    // sp.web.lists.getByTitle("Issue Tracker").add({
+      
+    // })
+  }
+  public updateItem(){
+    return console.log("Added Items")
+    // sp.web.lists.getByTitle("Issue Tracker").add({
+      
+    // })
+  }
 }
 
