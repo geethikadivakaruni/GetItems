@@ -21,6 +21,7 @@
     "@pnp/nodejs": "^3.7.0",
     "@pnp/odata": "^2.14.0",
     "@pnp/sp": "^2.11.0",
+    "@pnp/spfx-controls-react": "^3.10.0",
     "moment": "^2.29.4",
     "office-ui-fabric-react": "7.185.7",
     "react": "16.13.1",

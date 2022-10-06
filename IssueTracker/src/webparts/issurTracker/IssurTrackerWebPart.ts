@@ -32,7 +32,7 @@ export default class IssurTrackerWebPart extends BaseClientSideWebPart<IIssurTra
       IssurTracker,
       {
         description: this.properties.description,
-        spcontext:this.context // webURL:this.context.pageContext.web.absoluteUrl,
+        context:this.context // webURL:this.context.pageContext.web.absoluteUrl,
 
       }
     );
