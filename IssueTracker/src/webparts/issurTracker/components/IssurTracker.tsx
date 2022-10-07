@@ -32,6 +32,7 @@ import { MarqueeSelection } from '@fluentui/react';
 import { Label } from '@fluentui/react/lib/Label';
 import { TextField } from '@fluentui/react/lib/TextField';
 import { ThemeSettingName } from 'office-ui-fabric-react';
+import { _Item } from '@pnp/sp/items/types';
 // import Form from './Form'
 export interface ISPList {
   Description: string;
@@ -71,7 +72,7 @@ export interface IDetailsListState {
   Assignedto: {
     Title: string
   };
-  DateReported: string;
+  DateReported: any;
   IssueSource: {
 
   };
@@ -82,6 +83,21 @@ export interface IDetailsListState {
   Amount: string;
   ID: number;
   selectedId: number;
+  hideTable:boolean;
+  selectedDescription:string;
+selectedPriority: string;
+      selectedStatus: string;
+      selectedAssignedto: {
+        Title: string;
+      },
+      selectedDateReported: string;
+     
+      selectedIssueSource: string;
+      selectedImages: string;
+      selectedIssueloggedby: {
+        Title: string;
+      },
+      selectedAmount:string;
   //  value:any
   //  selectionMode:boolean,
 }
@@ -113,6 +129,15 @@ export default class IssurTracker extends React.Component<IIssurTrackerProps, ID
     });
 
     this.handleChange = this.handleChange.bind(this)
+    this.handleSubmit=this.handleSubmit.bind(this)
+    this.handleAMountChange=this.handleAMountChange.bind(this)    
+    this.handlePriorityChange=this.handlePriorityChange.bind(this)    
+    this.handleStatusChange=this.handleStatusChange.bind(this)    
+    this.handleIssueLoggedByChange=this.handleIssueLoggedByChange.bind(this)  
+    this.handleImageChange=this.handleImageChange.bind(this)   
+     this.handleAssignedToChange=this.handleAssignedToChange.bind(this)  
+    this.handleSubmit=this.handleSubmit.bind(this)
+    this.updateItem=this.updateItem.bind(this)
     const columns: IColumn[] = [
       {
         key: "Description",
@@ -209,13 +234,13 @@ export default class IssurTracker extends React.Component<IIssurTrackerProps, ID
       columns: columns,
       isColumnReorderEnabled: true,
       disabled: false,
-      Description: '',
+      Description: "",
       Priority: '',
       Status: '',
       Assignedto: {
         Title: ''
       },
-      DateReported: '',
+      DateReported: null,
       IssueSource: {},
       Images: '',
       Issueloggedby: {
@@ -223,6 +248,20 @@ export default class IssurTracker extends React.Component<IIssurTrackerProps, ID
       },
       Amount: '0',
       ID: 0,
+      selectedDescription: "",
+      selectedPriority: '',
+      selectedStatus: '',
+      selectedAssignedto: {
+        Title: ''
+      },
+      selectedDateReported: null,
+     
+      selectedIssueSource: "",
+      selectedImages: '',
+      selectedIssueloggedby: {
+        Title: ''
+      },
+      selectedAmount: '0',
       // value:'',
       selectionDetails: this._getSelectionDetails(),
       showForm: false,
@@ -230,7 +269,8 @@ export default class IssurTracker extends React.Component<IIssurTrackerProps, ID
       IsEditEnabled: false,
       DisplaySelectedItem: false,
       getSelectedData: false,
-      selectedId: 0
+      selectedId: 0,
+      hideTable:false
       //  selectionMode:false
     };
     // sp.setup({
@@ -239,34 +279,36 @@ export default class IssurTracker extends React.Component<IIssurTrackerProps, ID
   }
 
 
-  handleSubmit = (event: any) => {
-    event.preventDefault();
-
-    this.setState({ showForm: false })
-
-  }
+ 
 
   public handleChange = (event: any, value: any) => {
     // event.preventDefault();
-    return this.setState({ Description: value });
+    // console.log("val",value)
+    // console.log("evval",event.target.value)
+    this.setState({Description: event.target.value});  
+   // this.setState({ Description: value });
+    console.log(this.state.Description)
 
   }
-  public handlePriorityChange = (event: any) => {
-    // event.preventDefault();
-    this.setState({ Priority: event.target.value })
-    console.log("Priority", this.state.Priority)
+  public handlePriorityChange = (event: any,option:IDropdownOption) => {
+let  value=option.text
+this.setState({ Priority: value })
+   
   }
-  public handleStatusChange = (event: any) => {
+  public handleStatusChange(event: any,option:IDropdownOption) {
     // event.preventDefault();
-    this.setState({ Status: event.target.value })
-    console.log("Priority", this.state.Priority)
+    let  value=option.text
+   return this.setState({ Status: value })
+   
   }
-  // public handleAssignedToChange(event:any){
+  public handleAssignedToChange(event:any){
 
-  //   this.setState({:event.target.value})
-  // }
+    this.setState({Assignedto:event.target.value})
+  }
   public handleDateChange = (event: any) => {
     // event.preventDefault();
+    // let Date=Da
+    // console.log(Date)
     this.setState({ DateReported: event.target.value })
     console.log("Date", this.state.DateReported)
   }
@@ -299,6 +341,7 @@ export default class IssurTracker extends React.Component<IIssurTrackerProps, ID
 
   public async componentDidMount() {
     await this.getData();
+    console.log(this.state)
     //  this.state.getSelectedData?this.getSelectedItemData:""
   }
 
@@ -308,15 +351,19 @@ export default class IssurTracker extends React.Component<IIssurTrackerProps, ID
     const { selectionMode, selectionDetails } = this.state
     return (
 
-      <div><h1>Display SharePoint list data using spfx</h1>
+      <div>
+        <h1>Display SharePoint list data using spfx</h1>
 
-        <PrimaryButton text="New Item" onClick={() => this.setState({ showForm: true })} />
-        <DefaultButton text="Display" onClick={() => this.setState({ DisplaySelectedItem: true })} />
-        <PrimaryButton text="Edit" onClick={() => this.setState({ IsEditEnabled: true })} />"
+        <PrimaryButton text="New Item" onClick={() => this.setState({ showForm: true ,hideTable:true})} />
+        <DefaultButton text="Display" onClick={() => this.setState({ DisplaySelectedItem: true ,hideTable:true})} />
+        <PrimaryButton text="Edit" onClick={() => this.setState({ IsEditEnabled: true,hideTable:true })} />
 
         {this.state.showForm ? this.showForm() : ""}
-        {this.state.DisplaySelectedItem ? this.getFormToDisplay() : console.log(this.state.DisplaySelectedItem)}
-        <h1>{this.state.selectionDetails}</h1>
+        {this.state.DisplaySelectedItem ? this.getFormToDisplay() : ""}
+        {this.state.IsEditEnabled ? this.getFormToEdit() : ""}
+        {/* <h1>{this.state.selectionDetails}</h1> */}
+        {!(this.state.hideTable)?
+        <>
         <MarqueeSelection selection={this._selection}>
           {/* // {console.log("this.state.Items",this.state.Items)} */}
           <DetailsList
@@ -332,8 +379,12 @@ export default class IssurTracker extends React.Component<IIssurTrackerProps, ID
 
           />
         </MarqueeSelection>
-        <h3>Note : Image is clickable.</h3>
-
+        
+        </>
+        :""
+  }
+        
+       
 
 
 
@@ -344,7 +395,10 @@ export default class IssurTracker extends React.Component<IIssurTrackerProps, ID
 
   private _getSelectionDetails(): any {
     const selectionCount = this._selection.getSelectedCount();
+ 
     let SelectedItemId;
+    let SelectedItemDescription, SelectedItemAmount,SelectedItemPriority,SelectedItemStatus,SelectedItemDate;
+
     if (selectionCount == 0) {
       return 'No items selected';
 
@@ -353,7 +407,13 @@ export default class IssurTracker extends React.Component<IIssurTrackerProps, ID
 
       return (
         SelectedItemId = (this._selection.getSelection()[0] as IDetailsListState).ID,
-        this.setState({ selectedId: SelectedItemId })
+        // this.setState({ selectedId: SelectedItemId });
+    SelectedItemDescription=(this._selection.getSelection()[0] as IDetailsListState).Description,
+    SelectedItemAmount=(this._selection.getSelection()[0] as IDetailsListState).Amount,
+SelectedItemPriority=(this._selection.getSelection()[0] as IDetailsListState).Priority,
+SelectedItemStatus=(this._selection.getSelection()[0] as IDetailsListState).Status,
+SelectedItemDate=(this._selection.getSelection()[0] as IDetailsListState).DateReported,
+    this.setState({ selectedId: SelectedItemId ,selectedDescription:SelectedItemDescription,selectedAmount: SelectedItemAmount,selectedPriority:SelectedItemPriority,selectedDateReported:SelectedItemDate,selectedStatus:SelectedItemStatus})
 
 
 
@@ -371,35 +431,29 @@ export default class IssurTracker extends React.Component<IIssurTrackerProps, ID
     console.log("Id", this.state.selectedId)
 
     const allListItems: ISPList[] = await this.web.lists.getByTitle("Issue tracker").items.getById(id).select("ID", "Description", "Priority", "Status", "Assignedto/Title", "DateReported", "IssueSource", "Images", "Issueloggedby/Title", "Amount").expand("Assignedto", "Issueloggedby").get();
-    console.log("selecteditem", allListItems)
-    console.table(allListItems)
-    this.setState({ SelectedItems: { ...allListItems } })
-    // this.setState({Description:allListItems.})
-    //   // allListItems.
-    // this.setState()
-
-
-    // this.setState({SelectedItems:allListItems})
-    // //  await allListItems.map(async (item:any)=> {
-    //    await data.push({
-    //       Description: allListItems.Description,
-    //       Priority: allListItems.Priority,
-    //       Status: item.Status,
-    //       Assignedto:item.Assignedto,
-    //       DateReported:moment(item.DateReported).format("DD-MM-YYYY") ,
-    //       IssueSource: item.IssueSource,
-    //       Images: item.Images,
-    //       Issueloggedby:item.Issueloggedby,          
-    //       Amount:item.Amount,
-    //       ID:item.ID
-    //     });
-    // })
-
-    console.log(data);
-    console.log("seItems", this.state.SelectedItems)
-    this.setState({ SelectedItems: data }),
-      alert(this.state.SelectedItems)
+   console.log(allListItems)
+   allListItems.forEach(item=>{
+    data.push({
+      Description: item.Description,
+      Priority: allListItems[0].Priority,
+      Status: allListItems[0].Status,
+      Assignedto: allListItems[0].Assignedto,
+      DateReported: moment(allListItems[0].DateReported).format("DD-MM-YYYY"),
+      IssueSource: allListItems[0].IssueSource,
+      Images:allListItems[0].Images,
+      Issueloggedby: allListItems[0].Issueloggedby,
+      Amount: allListItems[0].Amount,
+      ID: allListItems[0].ID
+    });
+   })
+    
+    console.log(data)
+    this.setState({ SelectedItems: data })
+    console.log("selectedItems",this.state.SelectedItems)
+    
   }
+
+
 
 
   private _onItemInvoked = (item: IDetailsListState): void => {
@@ -409,171 +463,164 @@ export default class IssurTracker extends React.Component<IIssurTrackerProps, ID
   };
 
 
-  getFormToDisplay() {
+  getFormToDisplay() 
+{
+  return(
+    <>
+<Label>Description</Label>
+      {this.state.selectedDescription} 
+      
+       <Label>Priority </Label>
+        {this.state.selectedPriority}
+     
+       <Label>Status </Label>
+     
+       {this.state.selectedStatus}
+ 
+         <Label>Assigned To</Label>
 
-    this.getSelectedItemData(),
-      console.log("id", this.state.selectedId);
-    const items = this.state.SelectedItems;
-    // items.map( item => {
+       
+         <Label>Date Reported</Label>
+         {this.state.selectedDateReported}
+      {/* {item.DateReported?item.DateReported:""}
+         */}
+{/*       
+       <Label>Issue Source</Label>
+      {/* {item.IssueSource?item.IssueSource:''}  */}
 
-    items.map((item, key) => {
-      return (
-        <div >
-          <h1>{item.Description}</h1>
-        </div>
-
-      )
-    }
-    )
-    // alert(items.map(item=>
-    //   item[Description]
-
-    // ))
-    // <form>
-    //   <Label>Description</Label>
-    //   <p {item.Description?item.Description:''}
-
-    //     <Label>Priority </Label>
-    //     {item.Priority?item.Priority:''}
-
-    //     <Label>Status </Label>
-    //     {item.Status?item.Status:""} 
-
-    //       <Label>Assigned To</Label>
-    //     {item.Assignedto?item.Assignedto.Title:''}
-    //       <Label>Date Reported</Label>
-    //      {item.DateReported?item.DateReported:""}
-
-    //     <Label>Issue Source</Label>
-    //     {item.IssueSource?item.IssueSource:''} 
-    //     <Label>IssueLoggedBy</Label>
-    //     {item.Issueloggedby?item.Issueloggedby.Title:""} 
-    //     <Label>Images</Label>
-    //     {item.Images?item.Images:""} 
-    //     <Label>Amount</Label>
-    //     {item.Amount?item.Amount:""} 
-    //     <DefaultButton onClick={()=>this.setState({DisplaySelectedItem:false,selectedId:0})}> Cancel</DefaultButton> 
-
-    // </form>
-
-
-
-    // })
-
-
-
-
-  }
+      
+       {/* <Label>IssueLoggedBy</Label>
+       {/* {item.Issueloggedby?item.Issueloggedby.Title:""}   */}
+       {/* <p>{this.state.Issueloggedby?this.state.Issueloggedby.Title:''} </p> */} 
+       {/* <Label>Images</Label>
+       <Image
+         // {...imageProps}
+         src={this.state.Images}
+         // onChange={this.handleImageChange}
+         alt="Example with no image fit value and height or width is specified."
+         width={100}
+         height={100}
+       />
+        */}
+       <Label>Amount</Label>
+    
+       {this.state.selectedAmount} <br/>
+       <DefaultButton onClick={()=>this.setState({DisplaySelectedItem:false,selectedId:0,hideTable:false})}> Cancel</DefaultButton> 
+   {console.log(this.state)}
+   </>
+  )
+}
+        
+     
 
   getFormToEdit() {
+   
     return (
 
-      <div>
+      <div> 
+      <form id="add-app" onSubmit={this.updateItem}>
 
-        <form id="add-app">
-
-          <Label>Description</Label>
+      <Label>Description</Label>
           {/* <input type="text"> </input> */}
-          <TextField value={this.state.Description}></TextField>
-
-
-
+          <TextField value={this.state.Description}
+          onChange={this.handleChange}
+          >
+          </TextField>
           <Label>Priority </Label>
           <Dropdown
             placeholder="Select an option"
-            label="Dropdown with error message"
+            //  label="Dropdown with error message"
+            defaultValue={this.state.Priority}
             options={PriorityOptions}
-            onSelect={() => { this.state.Priority }}
-            //  value={this.state.}
-            //  onChange={this.onChange}
+             onSelect={()=>this.handlePriorityChange}
+             onChange={this.handlePriorityChange}
             //  errorMessage={showError ? 'This dropdown has an error' : undefined}
             styles={dropdownStyles} />
-
           <Label>Status </Label>
           <Dropdown
             placeholder="Select an option"
-            label="Dropdown with error message"
+            //  label="Dropdown with error message"
+            defaultValue={this.state.Status}
+            onSelect={()=>this.handleStatusChange}
+            onChange={this.handleStatusChange}
             options={StatusOptions}
-            onSelect={() => { this.state.Status }}
-            //  errorMessage={showError ? 'This dropdown has an error' : undefined}
+           
             styles={dropdownStyles} />
-
           <Label>Assigned To</Label>
+          {/* {console.log("context",this.props.context)} */}
+     <PeoplePicker
+            context={this.props.context}
+             principalTypes={[PrincipalType.User]} 
+            // // titleText="People Picker"
+            // personSelectionLimit={1}
+            // ensureUser={true}    
+            // showtooltip={true}
+            // groupName={""}
+            // //  isRequired={true}
+            // disabled={false}
+          //  selectedItems={this._getPeoplePickerItems} 
+          />
+          <Label>Date Reported</Label>
+          <DatePicker
+            // firstDayOfWeek={firstDayOfWeek}
+            value={this.state.DateReported}
+            // onChange={this.handleDateChange}
+            placeholder="Select a date..."
+            ariaLabel="Select a date"
+     
+            onSelectDate={ date => this.setState({ DateReported: date }) }
+            // DatePicker uses English strings by default. For localized apps, you must override this prop.
+            strings={defaultDatePickerStrings}
+          />
+          <Label>Issue Source</Label>
+          <TextField ></TextField>
+          <Label>IssueLoggedBy</Label>
           <PeoplePicker
             context={this.props.context}
-            titleText="People Picker"
+            principalTypes={[PrincipalType.User]}
+            // titleText="People Picker"
             personSelectionLimit={1}
-            groupName={"Team Site Owners"} // Leave this blank in case you want to filter from all users
+            groupName={""} // Leave this blank in case you want to filter from all users
             showtooltip={true}
             //  isRequired={true}
             disabled={false}
           //  selectedItems={this._getPeoplePickerItems} 
           />
-          <Label>Date Reported</Label>
-          <DatePicker
-            //  value=this.state.DateReported}
-            // firstDayOfWeek={firstDayOfWeek}
-            placeholder="Select a date..."
-            ariaLabel="Select a date"
-            // DatePicker uses English strings by default. For localized apps, you must override this prop.
-            strings={defaultDatePickerStrings}
-          />
-          <Label>Issue Source</Label>
-          {/* //link */}
-          <Label>IssueLoggedBy</Label>
-          {/* PeoplePicker */}
           <Label>Images</Label>
-          <Image
-            // {...imageProps}
-            alt="Example with no image fit value and height or width is specified."
-            width={100}
-            height={100}
-          />
+          
           <Label>Amount</Label>
-          <TextField></TextField>
-
-          <DefaultButton onClick={() => this.setState({ IsEditEnabled: false })}> Cancel</DefaultButton>
-          <PrimaryButton onClick={this.updateItem}>Create Item</PrimaryButton>
+          <TextField type="number" defaultValue={this.state.Amount}
+          onChange={this.handleAMountChange}
+          ></TextField>
+        
+          <DefaultButton onClick={() => this.setState({ IsEditEnabled: false ,hideTable:false})}> Cancel</DefaultButton>
+          <PrimaryButton type="submit">Update Item</PrimaryButton>
         </form>
       </div>
     )
 
   }
 
-  public async createItem() {
-    // return  alert("Added Items")
 
 
-    await sp.web.lists.getByTitle('Issue tracker').items.add({
+  public   updateItem() {
+    let date=   moment(this.state.DateReported).format("DD-MM-YYYY")
+    let list = sp.web.lists.getByTitle("Issue tracker");
+    console.log(this.state)
+  this.web.lists.getByTitle("Issue tracker").items.getById(this.state.selectedId).update({
       Description: this.state.Description,
       Priority: this.state.Priority,
-      DateReported: this.state.DateReported,
+      Status:this.state.Status,
+      DateReported: date,
       Amount: this.state.Amount,
-      Assignedto: this.state.Assignedto.Title
+
     });
-    // alert(this.state.Description)
-    // sp.web.lists.getByTitle("Issue Tracker").add({
+ 
+this.setState({hideTable:false});
+
+
   }
-  // })
 
-  public updateItem() {
-    return console.log("Added Items")
-    // sp.web.lists.getByTitle("Issue Tracker").add({
-
-    // })
-  }
-  //   private _getSelectionDetails(): any {
-  //     const selectionCount = this._selection.getSelectedCount();
-  //     const selectedId = this._selection.getItems();
-  //     console.log(selectionCount)
-  //     console.log("selectedId",selectedId)
-
-
-  // // let Items=[...this.state.Items]
-  // //     this.setState({Items});
-
-  // //   console.log("updates:",this.state.Items)
-  //    }
 
   private async getData() {
     // let web = Web(this.props.webURL);
@@ -600,78 +647,108 @@ export default class IssurTracker extends React.Component<IIssurTrackerProps, ID
     // console.log("Items",this.state.Items)
 
   }
+  public async handleSubmit(event: any){
+    event.preventDefault();
+ let date=   moment(this.state.DateReported).format("DD-MM-YYYY")
+ console.log("date",date)
+    console.log(this.state.Description)
+    console.log(this.state)
+    await this.web.lists.getByTitle('Issue tracker').items.add({
+      Description: this.state.Description,
+      Priority: this.state.Priority,
+      Status:this.state.Status,
+      DateReported: date,
+      Amount: this.state.Amount,
+      // Assignedto: this.state.Assignedto.Title
+    });
+    console.log("added items")
+    this.setState({hideTable:false})
 
+    this.setState({ showForm: false })
+
+  }
   public showForm = () => {
     return (
 
       <div>
-        {alert(this.state.showForm)}
+        {/* {alert(this.state.showForm)} */}
         <form id="add-app" onSubmit={this.handleSubmit}>
 
           <Label>Description</Label>
           {/* <input type="text"> </input> */}
-          <TextField defaultValue={this.state.Description}
-          // onChange={(e)=>{this.handleChange(e,this.state.Description)}}
+          <TextField value={this.state.Description}
+          onChange={this.handleChange}
           >
-
           </TextField>
-
-          {/* <Label>Title </Label>
-          <TextField></TextField> */}
-
           <Label>Priority </Label>
           <Dropdown
             placeholder="Select an option"
             //  label="Dropdown with error message"
             defaultValue={this.state.Priority}
             options={PriorityOptions}
-            onSelect={this.handlePriorityChange}
-            //  onChange={this.handlePriorityChange}
+             onSelect={()=>this.handlePriorityChange}
+             onChange={this.handlePriorityChange}
             //  errorMessage={showError ? 'This dropdown has an error' : undefined}
             styles={dropdownStyles} />
-
           <Label>Status </Label>
           <Dropdown
             placeholder="Select an option"
             //  label="Dropdown with error message"
             defaultValue={this.state.Status}
-            //  onChange={this.handleStatusChange}
+            onSelect={()=>this.handleStatusChange}
+            onChange={this.handleStatusChange}
             options={StatusOptions}
-            //  errorMessage={showError ? 'This dropdown has an error' : undefined}
+           
             styles={dropdownStyles} />
-
           <Label>Assigned To</Label>
-          {/* <PeoplePicker/> */}
+          {/* {console.log("context",this.props.context)} */}
+     <PeoplePicker
+            context={this.props.context}
+             principalTypes={[PrincipalType.User]} 
+            // // titleText="People Picker"
+            // personSelectionLimit={1}
+            // ensureUser={true}    
+            // showtooltip={true}
+            // groupName={""}
+            // //  isRequired={true}
+            // disabled={false}
+          //  selectedItems={this._getPeoplePickerItems} 
+          />
           <Label>Date Reported</Label>
           <DatePicker
             // firstDayOfWeek={firstDayOfWeek}
-            defaultValue={this.state.DateReported}
+            value={this.state.DateReported}
             // onChange={this.handleDateChange}
             placeholder="Select a date..."
             ariaLabel="Select a date"
+     
+            onSelectDate={ date => this.setState({ DateReported: date }) }
             // DatePicker uses English strings by default. For localized apps, you must override this prop.
             strings={defaultDatePickerStrings}
           />
           <Label>Issue Source</Label>
-          {/* //link */}
+          <TextField ></TextField>
           <Label>IssueLoggedBy</Label>
-          {/* PeoplePicker */}
-          <Label>Images</Label>
-          <Image
-            // {...imageProps}
-            src={this.state.Images}
-            // onChange={this.handleImageChange}
-            alt="Example with no image fit value and height or width is specified."
-            width={100}
-            height={100}
+          <PeoplePicker
+            context={this.props.context}
+            principalTypes={[PrincipalType.User]}
+            // titleText="People Picker"
+            personSelectionLimit={1}
+            groupName={""} // Leave this blank in case you want to filter from all users
+            showtooltip={true}
+            //  isRequired={true}
+            disabled={false}
+          //  selectedItems={this._getPeoplePickerItems} 
           />
+          <Label>Images</Label>
+          
           <Label>Amount</Label>
-          <TextField type="number" value={this.state.Amount}
-          // onChange={this.handleAMountChange}
+          <TextField type="number" defaultValue={this.state.Amount}
+          onChange={this.handleAMountChange}
           ></TextField>
 
-          <DefaultButton onClick={() => this.setState({ showForm: false })}> Cancel</DefaultButton>
-          <PrimaryButton onClick={() => this.createItem} >Create Item</PrimaryButton>
+          <DefaultButton onClick={() => this.setState({ showForm: false ,hideTable:false})}> Cancel</DefaultButton>
+          <PrimaryButton type="submit" >Create Item</PrimaryButton>
         </form>
       </div>
     );
@@ -715,7 +792,7 @@ export default class IssurTracker extends React.Component<IIssurTrackerProps, ID
   }
 }
 
-function async(arg0: (item: any) => void): any {
-  throw new Error('Function not implemented.');
-}
+// function async(arg0: (item: any) => void): any {
+//   throw new Error('Function not implemented.');
+// }
 
